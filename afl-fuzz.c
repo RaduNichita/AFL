@@ -295,8 +295,11 @@ static s8  interesting_8[]  = { INTERESTING_8 };
 static s16 interesting_16[] = { INTERESTING_8, INTERESTING_16 };
 static s32 interesting_32[] = { INTERESTING_8, INTERESTING_16, INTERESTING_32 };
 
-/* Fuzzing stages */
+/* plot update sec variable */
 
+static s32 plot_update_msec = 5000;
+
+/* Fuzzing stages */
 enum {
   /* 00 */ STAGE_FLIP1,
   /* 01 */ STAGE_FLIP2,
@@ -4005,7 +4008,7 @@ static void show_stats(void) {
 
   /* Every now and then, write plot data. */
 
-  if (cur_ms - last_plot_ms > PLOT_UPDATE_SEC * 1000) {
+  if (cur_ms - last_plot_ms > plot_update_msec) {
 
     last_plot_ms = cur_ms;
     maybe_update_plot_file(t_byte_ratio, avg_exec);
@@ -7139,6 +7142,7 @@ static void usage(u8* argv0) {
        "  -C            - crash exploration mode (the peruvian rabbit thing)\n"
        "  -V            - show version number and exit\n\n"
        "  -b cpu_id     - bind the fuzzing process to the specified CPU core\n\n"
+       "  -P time       - configure update plot time (expressed in ms)\n\n"
 
        "For additional tips, please consult %s/README.\n\n",
 
@@ -7795,7 +7799,7 @@ int main(int argc, char** argv) {
   gettimeofday(&tv, &tz);
   srandom(tv.tv_sec ^ tv.tv_usec ^ getpid());
 
-  while ((opt = getopt(argc, argv, "+i:o:f:m:b:t:T:dnCB:S:M:x:QV")) > 0)
+  while ((opt = getopt(argc, argv, "+i:o:f:m:b:t:T:dnCB:S:M:x:QVP:")) > 0)
 
     switch (opt) {
 
@@ -7979,12 +7983,19 @@ int main(int argc, char** argv) {
 
         /* Version number has been printed already, just quit. */
         exit(0);
+      
+      case 'P': {
+        if (sscanf(optarg, "%u", &) < 1 || optarg[0] == '-')
+          FATAL("Bad -P value"); 
+        break;
+      }
 
       default:
 
         usage(argv[0]);
 
     }
+   
 
   if (optind == argc || !in_dir || !out_dir) usage(argv[0]);
 
