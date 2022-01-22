@@ -7985,7 +7985,7 @@ int main(int argc, char** argv) {
         exit(0);
       
       case 'P': {
-        if (sscanf(optarg, "%u", &) < 1 || optarg[0] == '-')
+        if (sscanf(optarg, "%u", &plot_update_msec) < 1 || optarg[0] == '-')
           FATAL("Bad -P value"); 
         break;
       }
